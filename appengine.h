@@ -29,12 +29,19 @@ private:
     void clearStack();
 
 public:
-    explicit MyAppEngine(QQmlContext *rootContext,QQmlApplicationEngine *engine, QObject *parent = nullptr);
+    explicit MyAppEngine(QQmlApplicationEngine *engine, QObject *parent = nullptr);
 
     QString getMyFullName();
 public slots:
     void openConversation(int id);
     void openConversations();
+
+    void searchMessage(int convID, QString text);
+    void searchConvs(QString text);
+
+    bool updateConv(int convID);
+    void updateConvs();
+
 
     void sendMessage(int convID, QString text);
 

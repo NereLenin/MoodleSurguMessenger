@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 
     engine.load(url);
 
+
     QString result = "false";
 
     if(QSslSocket::supportsSsl()) result = "true";
@@ -28,8 +29,10 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("InetResult",result);
 
-    MyAppEngine appEngine(engine.rootContext(),&engine);
-    appEngine.checkConnection();
+    MyAppEngine appEngine(&engine);
+    appEngine.authorisation("vladislavyakubchick","RmTeERuL");
+    appEngine.openConversations();
+    //appEngine.checkConnection();
 
     //
     return app.exec();

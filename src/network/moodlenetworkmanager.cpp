@@ -253,7 +253,7 @@ bool MoodleNetworkManager::CreatePostWaitiedResponse(QString url, QByteArray dat
 
 
 //-----------Json response pars
-void MoodleNetworkManager::ReadJsonConversation(QJsonValue conv,Conversation &RewritedConv)
+void MoodleNetworkManager::ReadJsonConversation(QJsonValue conv, Conversation &RewritedConv, bool parseMembers)
 {
     if(conv.isNull())
     {
@@ -261,10 +261,15 @@ void MoodleNetworkManager::ReadJsonConversation(QJsonValue conv,Conversation &Re
        return;
     }
 
+
+
+    if(parseMembers)
+    {
     RewritedConv.SetId(conv.toObject().value("id").toInt());
 
     QJsonArray Members = conv.toObject().value("members").toArray();
     //создание Json массива members
+
 
     for(int j = 0; j< Members.size();j++)
     {
@@ -301,6 +306,7 @@ void MoodleNetworkManager::ReadJsonConversation(QJsonValue conv,Conversation &Re
 
     }
 
+    }
 
     QJsonArray Messages = conv.toObject().value("messages").toArray();
     //создание Json массива messagies
@@ -376,7 +382,7 @@ bool MoodleNetworkManager::ReadJson(const QByteArray &pars,Conversation& WriteTo
 
     QJsonValue Conversation = doc.array()[0].toObject().value("data");
 
-    ReadJsonConversation(Conversation,WriteTo);
+    ReadJsonConversation(Conversation,WriteTo,false);
 
     return true;
 }
@@ -511,12 +517,14 @@ void MoodleNetworkManager::ReadExistConversations(QList<Conversation*> &Conversa
     }
 
 
+    /*
     QFile file("out.html");
         if (file.open(QIODevice::WriteOnly))
         {
             file.write(PersonalConversationsResponse);
             file.close();
         }
+    */
 
     ConversationToRead.clear();
 
@@ -529,7 +537,7 @@ void MoodleNetworkManager::ReadExistConversations(QList<Conversation*> &Conversa
     }
 }
 
-void MoodleNetworkManager::ReadConversation(Conversation &ReadedConversation)
+void MoodleNetworkManager::ReadConversation(Conversation &ReadedConversation, int time,bool clear)
 {
 
     if(!isGoodAuthorisation)
@@ -542,7 +550,7 @@ void MoodleNetworkManager::ReadConversation(Conversation &ReadedConversation)
     QByteArray pars;
 
     QString GetMessagiesUrl = QString("https://moodle.surgu.ru/lib/ajax/service.php?sesskey=%1&info=core_message_get_conversation_messages").arg(current_account.GetSessKey());
-    QString GetMessagiesPostData = QString(("[{\"index\":0,\"methodname\":\"core_message_get_conversation_messages\",\"args\":{\"currentuserid\":%1,\"convid\":%2,\"newest\":true,\"limitnum\":0,\"limitfrom\":0,\"timefrom\":0}}]")).arg(current_account.GetId()).arg(ReadedConversation.GetId());
+    QString GetMessagiesPostData = QString(("[{\"index\":0,\"methodname\":\"core_message_get_conversation_messages\",\"args\":{\"currentuserid\":%1,\"convid\":%2,\"newest\":true,\"limitnum\":0,\"limitfrom\":0,\"timefrom\":%3}}]")).arg(current_account.GetId()).arg(ReadedConversation.GetId()).arg(QString::number(time));
 
 
     qDebug() << "   1.Отправка запроса на получение списка сообщений диалога";
@@ -553,14 +561,14 @@ void MoodleNetworkManager::ReadConversation(Conversation &ReadedConversation)
         return;
     }
 
-
+/*
     QFile file("out.html");
         if (file.open(QIODevice::WriteOnly))
         {
             file.write(pars.toStdString().c_str());
             file.close();
         }
-
+*/
     if(!pars.contains("{\"error\":false"))
     {
         QString error_text;
@@ -571,8 +579,10 @@ void MoodleNetworkManager::ReadConversation(Conversation &ReadedConversation)
         return;
     }
 
-    ReadedConversation.ClearAllMessages();
-    ReadedConversation.ClearAllMembers();
+    if(clear)
+        ReadedConversation.ClearAllMessages();
+
+    //ReadedConversation.ClearAllMembers();
 
     /*
     QFile file("out.html");
@@ -616,6 +626,11 @@ void MoodleNetworkManager::ReadConversation(Conversation &ReadedConversation)
     }
 }
 
+void MoodleNetworkManager::UpdateConversation(Conversation &WriteTo)
+{
+    ReadConversation(WriteTo,WriteTo[0]->GetTimeCreated(),false);
+}
+
 
 void MoodleNetworkManager::SendMessage(Conversation &Addressee, QString Text)
 {
@@ -632,9 +647,6 @@ void MoodleNetworkManager::SendMessage(Conversation &Addressee, QString Text)
 
     QString SendMessageUrl =  QString("https://moodle.surgu.ru/lib/ajax/service.php?sesskey=%1&info=core_message_send_messages_to_conversation").arg(current_account.GetSessKey());
 
-    QJsonObject obj;
-
-    QJsonArray array;
 
     QJsonArray messages   {
       QJsonObject{{"text", Text}},

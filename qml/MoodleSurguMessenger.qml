@@ -4,8 +4,8 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Window 2.15
 
 Window {
-    width: 340
-    height: 400
+    width: 400
+    height: 600
     visible: true
     title:"MoodleMessenger"
 
@@ -28,7 +28,7 @@ Window {
         anchors.top: toolBar.bottom
         anchors.bottom: parent.bottom
         anchors.topMargin: 1
-        initialItem: "CheckConnection.qml"
+        //initialItem: "CheckConnection.qml"
 
         function pushPage(pageUrl: string){
                 push(pageUrl);
@@ -123,6 +123,19 @@ Window {
                         anchors.margins: 8
                         fillMode: Image.PreserveAspectFit
                     }
+
+            onClicked:
+            {
+               if(stackView.currentItem.isSearchOpen)
+               {
+                    stackView.currentItem.searchCloseAnimation = true;
+               }
+               else
+               {
+                    stackView.currentItem.searchOpenAnimation = true;
+               }
+            }
+
             }
 }
 

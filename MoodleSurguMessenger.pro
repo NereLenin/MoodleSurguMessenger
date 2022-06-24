@@ -8,7 +8,7 @@ QT += quick
 #
 
 # prebuild install openssl library for Android's complects
-android: include(C:\Users\vladick\AppData\Local\Android\Sdk\android_openssl\openssl.pri)
+android: include(D:\Android\Sdk\android_openssl\openssl.pri)
 
 SOURCES += \
         appengine.cpp \

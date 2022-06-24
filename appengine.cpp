@@ -1,10 +1,10 @@
 #include "appengine.h"
 
 
-MyAppEngine::MyAppEngine(QQmlContext *rootContext,QQmlApplicationEngine *engine, QObject *parent)
+MyAppEngine::MyAppEngine(QQmlApplicationEngine *engine, QObject *parent)
     : QObject{parent}
 {
-    this->rootContext = rootContext;
+    this->rootContext = engine->rootContext();
     this->engine = engine;
 
 
@@ -58,13 +58,24 @@ void MyAppEngine::openConversation(int id)
 
     rootContext->setContextProperty("currentConversation", openConv);
 
-    pushPage("Conversation.qml");
 
     networkManager.ReadConversation(*openConv);
     rootContext->setContextProperty("messagesModel", conversations.getModelMessagesOfConversation(openConv));
+    pushPage("Conversation.qml");
+
+/*
+   if(openConv->MessagesSize() <= 1)
+    {
+         }
+    else
+    {
+       networkManager.UpdateConversation(*openConv);
+       rootContext->setContextProperty("messagesModel", conversations.getModelMessagesOfConversation(openConv));
+       pushPage("Conversation.qml");    }
 
     //popPage();
     //clearStack();
+*/
 
 }
 
@@ -72,12 +83,53 @@ void MyAppEngine::openConversations()
 {
     //popPage();
     //clearStack();
-    pushPage("ConversationsList.qml");
-    networkManager.ReadExistConversations(conversations.getConversations());
+
+    if(conversations.size()==0)
+    {
+        networkManager.ReadExistConversations(conversations.getConversations());
+    }
+
+
     rootContext->setContextProperty("conversationsModel", conversations.getModelConversations());
     rootContext->setContextProperty("currentConversation", &nullconv);
 
+    pushPage("ConversationsList.qml");
 }
+
+void MyAppEngine::searchMessage(int convID, QString text)
+{
+    rootContext->setContextProperty("messagesModel", conversations.searchMessage(convID,text));
+}
+
+void MyAppEngine::searchConvs(QString text)
+{
+    rootContext->setContextProperty("conversationsModel", conversations.searchConversations(text));
+}
+
+bool MyAppEngine::updateConv(int convID)
+{
+    Conversation* openConv = conversations.getConversationById(convID);
+    if(openConv==nullptr)
+    {
+        qDebug() << "Can't find conv to open with id " << convID << "\n";
+        return false;
+    }
+
+    rootContext->setContextProperty("currentConversation", openConv);
+
+
+    //networkManager.ReadConversation(*openConv);
+    rootContext->setContextProperty("messagesModel", conversations.getModelMessagesOfConversation(openConv));
+
+    return true;
+}
+
+void MyAppEngine::updateConvs()
+{
+    rootContext->setContextProperty("conversationsModel", conversations.getModelConversations());
+    rootContext->setContextProperty("currentConversation", &nullconv);
+}
+
 
 void MyAppEngine::sendMessage(int convID, QString text)
 {
@@ -107,8 +159,12 @@ void MyAppEngine::startAuthorisation()
 void MyAppEngine::startLoadDialog()
 {
     //popPage("");
-    networkManager.ReadExistConversations(conversations.getConversations());
     pushPage("DialogLoad.qml");
+    networkManager.ReadExistConversations(conversations.getConversations());
+    for(int i=0;i<conversations.size()/2;i++)
+        networkManager.ReadConversation(*conversations[i]);
+
+
 }
 
 bool MyAppEngine::authorisation(QString login, QString password)

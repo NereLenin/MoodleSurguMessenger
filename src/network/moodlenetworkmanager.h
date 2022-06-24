@@ -48,7 +48,7 @@ private:
     bool CreatePostWaitiedResponse(QString url,QString data, QByteArray *PostReply=nullptr);
     bool CreatePostWaitiedResponse(QString url, QByteArray data,QByteArray *PostReply);
 
-    void ReadJsonConversation(QJsonValue conv,Conversation &RewritedConv);
+    void ReadJsonConversation(QJsonValue conv,Conversation &RewritedConv,bool parseMembers=true);
     bool ReadJson(const QByteArray &pars,QList<Conversation*> &ConversationToRead);
     bool ReadJson(const QByteArray &pars,Conversation& WriteTo);
 
@@ -65,7 +65,10 @@ public:
     void Authorisation();
 
     void ReadExistConversations(QList<Conversation*> &ConversationToRead);
-    void ReadConversation(Conversation& WriteTo);
+
+    void ReadConversation(Conversation& WriteTo, int time=0, bool clear=true);
+
+    void UpdateConversation(Conversation& WriteTo);
 
     void SendMessage(Conversation& Addressee, QString Text);
     void DeleteMessage(Message& DeletedMessage);

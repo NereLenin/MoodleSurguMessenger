@@ -51,6 +51,52 @@ QVariant &ConversationMananger::getModelMessagesOfConversation(Conversation *con
     return getModelMessagesOfConversation(conversationList.indexOf(conversation));
 }
 
+QVariant &ConversationMananger::searchMessage(int convID, QString searchText)
+{
+
+
+    Conversation *searchInConv = getConversationById(convID);
+
+    if(searchInConv)
+    {
+        searchList.clear();
+        searchModel.clear();
+
+
+        for(int i=0;i<searchInConv->MessagesSize();i++)
+        {
+            if(searchInConv->GetMessageFromList(i)->GetText().toLower().contains(searchText.toLower()))
+               searchList.append(searchInConv->GetMessageFromList(i));
+        }
+
+        searchModel.setValue(searchList);
+        return searchModel;
+    }
+    else
+        return messagesModel;
+}
+
+QVariant &ConversationMananger::searchConversations(QString searchText)
+{
+    if(size()>1)
+    {
+        searchList.clear();
+        searchModel.clear();
+
+
+        for(int i=0;i<size();i++)
+        {
+            if(conversationList[i]->getFullNameFirstMember().toLower().contains(searchText.toLower()))
+               searchList.append(conversationList[i]);
+        }
+
+        searchModel.setValue(searchList);
+        return searchModel;
+    }
+    else
+        return conversationsModel;
+}
+
 Conversation *ConversationMananger::getConversationById(int id)
 {
 
