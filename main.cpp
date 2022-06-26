@@ -3,6 +3,8 @@
 #include <QSslSocket>
 #include "appengine.h"
 
+
+
 int main(int argc, char *argv[])
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -21,6 +23,7 @@ int main(int argc, char *argv[])
 
 
     QList <Course*> courses;
+    QList <Member*> members;
 
     MoodleNetworkManager nm;
     ConversationMananger convs;
@@ -30,6 +33,21 @@ int main(int argc, char *argv[])
     nm.Authorisation();
 
     nm.ReadCourses(courses);
+
+    QByteArray pars;
+
+    QString GetMessagiesUrl = QString("https://moodle.surgu.ru/lib/ajax/service.php?sesskey=%1&info=core_course_get_recent_courses").arg(nm.current_account.GetSessKey());
+    //QString GetMessagiesPostData = QString(("[{\"index\":0,\"methodname\":\"core_enrol_search_users\",\"args\":{\"userid\":%1,\"courseid\":%2}}]")).arg(nm.current_account.GetId()).arg("4130");
+    QString GetMessagiesPostData = QString(("[{\"index\":0,\"methodname\":\"core_course_get_recent_courses\",\"args\":{\"userid\":\"%1\",\"limit\":0}}]")).arg(nm.current_account.GetId());
+
+    if(!nm.CreatePostWaitiedResponse(GetMessagiesUrl,GetMessagiesPostData,&pars))
+    {
+        qDebug() << "Ошибка получения диалогов. Проверте подключение к сети";
+    } else
+
+    qDebug() << pars;
+
+    nm.ReadJson(pars,courses);
 
     qDebug() << courses.size();
 
