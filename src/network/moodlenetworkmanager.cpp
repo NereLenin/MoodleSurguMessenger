@@ -270,6 +270,7 @@ void MoodleNetworkManager::ReadJsonConversation(QJsonValue conv, Conversation &R
     QJsonArray Members = conv.toObject().value("members").toArray();
     //создание Json массива members
 
+    qDebug() << Members;
 
     for(int j = 0; j< Members.size();j++)
     {

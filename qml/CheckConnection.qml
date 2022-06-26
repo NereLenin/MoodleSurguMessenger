@@ -38,7 +38,7 @@ Rectangle {
         NumberAnimation {
             target: loadCirclePathAngle
             property: "sweepAngle"
-            duration: 5000
+            duration: 2000
             to: 360
             running: true
             //easing.type: Easing.InOutQuad
@@ -48,7 +48,6 @@ Rectangle {
                 {
                     //startAuthorisation
                     console.log("All right internrut!");
-                    text1.text = InetResult;
 
                     appEngine.startAuthorisation();
                 }
@@ -56,7 +55,7 @@ Rectangle {
                 {
                      myShapePath.strokeColor = "#FF0000";
                     text1.color = "#FF0000";
-                    text1.text = "Ошибка соединения с moodle (" + InetResult + ")";
+                    text1.text = "Ошибка соединения с Moodle";
                 }
 
             }
@@ -81,7 +80,7 @@ Rectangle {
     Text {
         id: text1
         color: "#0063b9"
-        text: qsTr("Установка соединения с сайтом") + " (" + InetResult + ")"
+        text: qsTr("Установка соединения с сайтом")
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: image.bottom

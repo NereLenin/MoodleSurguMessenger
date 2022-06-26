@@ -44,15 +44,16 @@ private:
 
     bool isGoodAuthorisation;
 
-    bool CreateGetWaitiedResponse(QString url, QByteArray *GetReply=nullptr);
-    bool CreatePostWaitiedResponse(QString url,QString data, QByteArray *PostReply=nullptr);
-    bool CreatePostWaitiedResponse(QString url, QByteArray data,QByteArray *PostReply);
 
     void ReadJsonConversation(QJsonValue conv,Conversation &RewritedConv,bool parseMembers=true);
     bool ReadJson(const QByteArray &pars,QList<Conversation*> &ConversationToRead);
     bool ReadJson(const QByteArray &pars,Conversation& WriteTo);
 
 public:
+    bool CreateGetWaitiedResponse(QString url, QByteArray *GetReply=nullptr);
+    bool CreatePostWaitiedResponse(QString url,QString data, QByteArray *PostReply=nullptr);
+    bool CreatePostWaitiedResponse(QString url, QByteArray data,QByteArray *PostReply);
+//private ^
     explicit MoodleNetworkManager(QObject *parent=nullptr);
     Account current_account;
 
