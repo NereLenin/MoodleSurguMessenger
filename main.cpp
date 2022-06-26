@@ -19,7 +19,9 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
 
-/*
+
+    QList <Course*> courses;
+
     MoodleNetworkManager nm;
     ConversationMananger convs;
 
@@ -27,18 +29,15 @@ int main(int argc, char *argv[])
     nm.SetPassword("RmTeERuL");
     nm.Authorisation();
 
-    QByteArray pars;
+    nm.ReadCourses(courses);
 
-    QString GetMessagiesUrl = QString("https://moodle.surgu.ru/lib/ajax/service.php?sesskey=%1&info=core_enrol_search_users").arg(nm.current_account.GetSessKey());
-    //QString GetMessagiesPostData = QString(("[{\"index\":0,\"methodname\":\"core_enrol_search_users\",\"args\":{\"userid\":%1,\"courseid\":%2}}]")).arg(nm.current_account.GetId()).arg("4130");
-    QString GetMessagiesPostData = QString(("[{\"index\":0,\"methodname\":\"core_enrol_search_users\",\"args\":{\"userid\":%1,\"courseid\":%2}}]")).arg(nm.current_account.GetId()).arg("4130");
+    qDebug() << courses.size();
 
-    if(!nm.CreatePostWaitiedResponse(GetMessagiesUrl,GetMessagiesPostData,&pars))
-    {
-        qDebug() << "Ошибка получения диалогов. Проверте подключение к сети";
-    } else
-    qDebug() << pars;
-    */
+    for(int i=0;i<courses.size();i++)
+        qDebug() << "\n" << courses[i]->getFullName() << " : " << courses[i]->getId() << " : " << courses[i]->getURL();
+
+
+
     /*
     nm.ReadExistConversations(convs.getConversations());
 
@@ -48,12 +47,12 @@ int main(int argc, char *argv[])
     */
 
 
-    engine.load(url);
+    //engine.load(url);
 
-    MyAppEngine appEngine(&engine);
+    //MyAppEngine appEngine(&engine);
     //appEngine.authorisation("vladislavyakubchick","RmTeERuL");
     //appEngine.openConversations();
-    appEngine.checkConnection();
+    //appEngine.checkConnection();
 
     return app.exec();
 }

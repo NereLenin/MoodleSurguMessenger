@@ -20,8 +20,7 @@
 #include <src/conversation/conversation.h>
 #include <src/profiles/account.h>
 #include <iostream>
-
-using namespace std;
+#include "src/courses/course.h"
 
 //pars
 bool ParsString(QString RegExp,QByteArray StringForPars,QString& result,int from=0);
@@ -44,10 +43,12 @@ private:
 
     bool isGoodAuthorisation;
 
-
+public://private
     void ReadJsonConversation(QJsonValue conv,Conversation &RewritedConv,bool parseMembers=true);
+    void ReadJsonCourse(QJsonValue course, Course &newCourse);
     bool ReadJson(const QByteArray &pars,QList<Conversation*> &ConversationToRead);
     bool ReadJson(const QByteArray &pars,Conversation& WriteTo);
+    bool ReadJson(const QByteArray &pars,QList<Course*> &courses);
 
 public:
     bool CreateGetWaitiedResponse(QString url, QByteArray *GetReply=nullptr);
@@ -66,6 +67,7 @@ public:
     void Authorisation();
 
     void ReadExistConversations(QList<Conversation*> &ConversationToRead);
+    void ReadCourses(QList<Course*> &courses);
 
     void ReadConversation(Conversation& WriteTo, int time=0, bool clear=true);
 

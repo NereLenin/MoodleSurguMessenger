@@ -16,6 +16,7 @@ SOURCES += \
         src/conversation/conversation.cpp \
         src/conversation/conversationmanager.cpp \
         src/conversation/message.cpp \
+        src/courses/course.cpp \
         src/network/moodlenetworkmanager.cpp \
         src/profiles/account.cpp \
         src/profiles/member.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
     src/conversation/conversation.h \
     src/conversation/conversationmanager.h \
     src/conversation/message.h \
+    src/courses/course.h \
     src/network/moodlenetworkmanager.h \
     src/profiles/account.h \
     src/profiles/member.h \

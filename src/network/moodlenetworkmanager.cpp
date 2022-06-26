@@ -1,6 +1,8 @@
 #include "src/network/moodlenetworkmanager.h"
 //#include <QFile>
-#include <QHttpPart>
+
+
+
 //-----------Parcing Functions
 bool ParsString(QString RegExp,QByteArray StringForPars,QString& result,int from)
 {
@@ -341,6 +343,28 @@ void MoodleNetworkManager::ReadJsonConversation(QJsonValue conv, Conversation &R
     }//end add mesage
 }
 
+void MoodleNetworkManager::ReadJsonCourse(QJsonValue course, Course &newCourse)
+{
+    if(course.isNull())
+    {
+       qDebug() << "Пустой диалог";
+       return;
+    }
+
+    newCourse.setId(course.toObject().value("id").toInt());
+    newCourse.setFullName(course.toObject().value("fullname").toString());
+    newCourse.setShortName(course.toObject().value("shortname").toString());
+    newCourse.setURL(course.toObject().value("viewurl").toString());
+
+    if(!course.toObject().value("courseimage").isNull())
+    {
+        QImage *newImage = new QImage;
+        newImage->loadFromData(course.toObject().value("courseimage").toString().toUtf8(),"SVG");
+        newCourse.setCourseImage(*newImage);
+    }
+
+}
+
 bool MoodleNetworkManager::ReadJson(const QByteArray &pars,QList<Conversation*> &ConversationToRead)
 {
     QJsonParseError error;
@@ -364,6 +388,34 @@ bool MoodleNetworkManager::ReadJson(const QByteArray &pars,QList<Conversation*> 
         Conversation *NewConversation = new Conversation;
         ReadJsonConversation(Conversations[i],*NewConversation);
         ConversationToRead.append(NewConversation);
+    }
+
+    return true;
+}
+
+bool MoodleNetworkManager::ReadJson(const QByteArray &pars,QList<Course*> &courses)
+{
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(pars,&error);
+
+    if(error.error != QJsonParseError::NoError)
+    {
+        qDebug() << "Ошибка чтения ответа";
+        qDebug() << error.errorString();
+        return false;
+    }
+
+    QJsonArray coursesData = doc.array()[0].toObject().value("data").toArray();
+
+    if(coursesData.isEmpty())
+        return true;
+
+
+    for(int i=0; i< coursesData.size();i++)
+    {
+        Course *newCourse = new Course;
+        ReadJsonCourse(coursesData[i],*newCourse);
+        courses.append(newCourse);
     }
 
     return true;
@@ -536,6 +588,47 @@ void MoodleNetworkManager::ReadExistConversations(QList<Conversation*> &Conversa
         qDebug() << "Ошибка парсинга диалогов";
         return;
     }
+}
+
+void MoodleNetworkManager::ReadCourses(QList<Course*> &courses)
+{
+    if(!isGoodAuthorisation)
+    {
+       qDebug() << "Ошибка авторизации. Войдите в свой аккаунт";
+       return;
+    }
+
+    QByteArray response;
+
+    QString getCoursesURL= QString("https://moodle.surgu.ru/lib/ajax/service.php?sesskey=%1&info=core_course_get_recent_courses").arg(current_account.GetSessKey());
+    QString getCoursesPostData = QString(("[{\"index\":0,\"methodname\":\"core_course_get_recent_courses\",\"args\":{\"userid\":\"%1\",\"limit\":0}}]")).arg(current_account.GetId());
+
+    qDebug() << "   1.Отправка запроса на получение списка курсов";
+
+    if(!(CreatePostWaitiedResponse(getCoursesURL,getCoursesPostData,&response)))
+    {
+        qDebug() << "Ошибка получения курсов. Проверте подключение к сети";
+        return;
+    }
+
+
+    /*
+    QFile file("out.html");
+        if (file.open(QIODevice::WriteOnly))
+        {
+            file.write(PersonalConversationsResponse);
+            file.close();
+        }
+    */
+
+    courses.clear();
+
+    if((!ReadJson(response,courses)) )
+    {
+        qDebug() << "Ошибка парсинга курсов";
+        return;
+    }
+
 }
 
 void MoodleNetworkManager::ReadConversation(Conversation &ReadedConversation, int time,bool clear)
