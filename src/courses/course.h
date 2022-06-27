@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QImage>
 
+#include "src/profiles/member.h"
+
 class Course : public QObject
 {
     Q_OBJECT
@@ -14,8 +16,14 @@ private:
 
     QImage courseImage;
     QString URL;
+
+
 public:
     explicit Course(QObject *parent = nullptr);
+
+
+    //private
+    QList<Member*> courseMembers;
 
     int getId() const;
     void setId(int newId);
@@ -23,7 +31,7 @@ public:
     const QString &getFullName() const;
     void setFullName(const QString &newFullName);
 
-     const QString &getShortName() const;
+    const QString &getShortName() const;
     void setShortName(const QString &newShortName);
 
     const QImage &getCourseImage() const;
@@ -34,6 +42,7 @@ public:
 
 signals:
 
+    friend class MoodleNetworkManager;
 };
 
 #endif // COURSE_H

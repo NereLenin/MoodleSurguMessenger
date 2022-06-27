@@ -181,3 +181,11 @@ bool MyAppEngine::isConnection()
     return networkManager.isNetworkAccessible();
 }
 
+void MyAppEngine::reconnecting()
+{
+    isConnection();
+    clearStack();
+    pushPage("Authorization.qml");
+    isConnection();
+}
+

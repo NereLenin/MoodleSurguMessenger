@@ -18,6 +18,10 @@ bool ParsString(QString RegExp,QByteArray StringForPars,QString& result,int from
     return false;
 }
 
+bool ParsString(QString RegExp,QString StringForPars,QString& result,int from)
+{
+    return ParsString(RegExp,StringForPars.toUtf8(),result,from);
+}
 //-----------constructor
 MoodleNetworkManager::MoodleNetworkManager(QObject *parent): QObject{parent}
 { 
@@ -255,6 +259,71 @@ bool MoodleNetworkManager::CreatePostWaitiedResponse(QString url, QByteArray dat
 
 
 //-----------Json response pars
+void MoodleNetworkManager::ParseMembersOfTheCourse(QByteArray &membersPage, Course &course)
+{
+    QString tablestring;
+    if(!ParsString("(?<=<table class=\"flexible table table-striped table-hover generaltable generalbox\" id=\"participants\">)(.*)(?=</table>)",membersPage,tablestring))
+    {
+        qDebug() << "Ошибка чтения таблицы.Страница не содержит таблицу участников.";
+        return;
+    }
+
+    QString bodytable;
+    if(!ParsString("(?<=<tbody>)(.*)(?=</tbody>)",tablestring,bodytable))
+    {
+        qDebug() << "Ошибка чтения содержимого таблицы.";
+        return;
+    }
+
+    //QString course_id = "4130";
+
+    QString participants_size;
+
+    ParsString("data-table-total-rows=\"([^>]+)\">",membersPage,participants_size);
+
+    qDebug() << "participants size: " << participants_size;
+
+    int size = participants_size.toInt();
+
+    for(int i=0; i < size; i++)
+    {
+        QString current_participent_data;
+        if(ParsString(QString("(?<=<th class=\"cell c0\" id=\"user-index-participants-%1_r%2_c0\" scope=\"row\">)(.*)(?=</th>)").arg(course.getId()).arg(i),tablestring,current_participent_data))
+        {
+            QString id;
+            QString profileurl;
+            QString fullname;
+            QString avatarurl;
+
+            //url
+            //<a href="https://moodle.surgu.ru/user/view.php?id=15172&amp;course=4130" class="d-inline-block aabtn">
+            ParsString("<a href=\"([^>]+)&amp;",current_participent_data,profileurl);
+            ParsString("id=([^>]+)",profileurl,id);
+
+            //<img src="https://secure.gravatar.com/avatar/d3b6de83252b82ea99353e07f05944ea?s=35&d=mm" class="userpicture defaultuserpic" width="35" height="35" alt="Изображение пользователя Александров Даниил Алексеевич" title="Изображение пользователя Александров Даниил Алексеевич">
+            ParsString("<img src=\"([^>]+)\" class=\"userpicture defaultuserpic\"",current_participent_data,avatarurl);
+            avatarurl.remove("amp;");
+
+            ParsString("\" />([^>]+)</a>",current_participent_data,fullname);
+
+            Member *newMember = new Member;
+            newMember->SetId(id.toInt());
+            newMember->SetProfileURL(profileurl);
+            newMember->SetAvatarURL(avatarurl);
+            newMember->SetFullName(fullname);
+
+            course.courseMembers.append(newMember);
+        }
+        else
+        {
+            qDebug() << "Ошибка чтения на члене курса:" << i;
+            break;
+        }
+    }
+
+
+}
+
 void MoodleNetworkManager::ReadJsonConversation(QJsonValue conv, Conversation &RewritedConv, bool parseMembers)
 {
     if(conv.isNull())
@@ -628,6 +697,29 @@ void MoodleNetworkManager::ReadCourses(QList<Course*> &courses)
         qDebug() << "Ошибка парсинга курсов";
         return;
     }
+
+}
+
+void MoodleNetworkManager::ReadCourse(Course &course)
+{
+    if(!isGoodAuthorisation)
+    {
+       qDebug() << "Ошибка авторизации. Войдите в свой аккаунт";
+       return;
+    }
+
+    QByteArray response;
+
+    QString GetMessagiesUrl = QString("https://moodle.surgu.ru/user/index.php?sesskey=%1&id=%2&perpage=0").arg(current_account.GetSessKey()).arg(course.getId());
+
+    if(!CreateGetWaitiedResponse(GetMessagiesUrl,&response))
+    {
+        qDebug() << "Ошибка получения курса. Проверте подключение к сети";
+        return;
+    }
+
+    ParseMembersOfTheCourse(response,course);
+
 
 }
 

@@ -24,6 +24,7 @@
 
 //pars
 bool ParsString(QString RegExp,QByteArray StringForPars,QString& result,int from=0);
+bool ParsString(QString RegExp,QString StringForPars,QString& result,int from=0);
 
 class MoodleNetworkManager: protected QObject
 {
@@ -44,6 +45,8 @@ private:
     bool isGoodAuthorisation;
 
 public://private
+    void ParseMembersOfTheCourse(QByteArray &membersPage, Course &course);
+
     void ReadJsonConversation(QJsonValue conv,Conversation &RewritedConv,bool parseMembers=true);
     void ReadJsonCourse(QJsonValue course, Course &newCourse);
     bool ReadJson(const QByteArray &pars,QList<Conversation*> &ConversationToRead);
@@ -54,6 +57,7 @@ public:
     bool CreateGetWaitiedResponse(QString url, QByteArray *GetReply=nullptr);
     bool CreatePostWaitiedResponse(QString url,QString data, QByteArray *PostReply=nullptr);
     bool CreatePostWaitiedResponse(QString url, QByteArray data,QByteArray *PostReply);
+
 //private ^
     explicit MoodleNetworkManager(QObject *parent=nullptr);
     Account current_account;
@@ -68,6 +72,7 @@ public:
 
     void ReadExistConversations(QList<Conversation*> &ConversationToRead);
     void ReadCourses(QList<Course*> &courses);
+    void ReadCourse(Course &course);
 
     void ReadConversation(Conversation& WriteTo, int time=0, bool clear=true);
 

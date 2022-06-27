@@ -52,9 +52,9 @@ public slots:
 
     bool authorisation(QString login, QString password);
 
-
-
     bool isConnection();
+
+    void reconnecting();
 
 signals:
 

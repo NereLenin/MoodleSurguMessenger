@@ -48,7 +48,6 @@ Rectangle {
                 {
                     //startAuthorisation
                     console.log("All right internrut!");
-
                     appEngine.startAuthorisation();
                 }
                 else
@@ -56,6 +55,7 @@ Rectangle {
                      myShapePath.strokeColor = "#FF0000";
                     text1.color = "#FF0000";
                     text1.text = "Ошибка соединения с Moodle";
+                    appEngine.reconnecting();
                 }
 
             }
