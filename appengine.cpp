@@ -183,9 +183,9 @@ bool MyAppEngine::isConnection()
 
 void MyAppEngine::reconnecting()
 {
+    //_sleep(2000);
     isConnection();
     clearStack();
-    pushPage("Authorization.qml");
-    isConnection();
+    pushPage("CheckConnection.qml");
 }
 

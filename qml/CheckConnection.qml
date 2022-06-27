@@ -36,9 +36,11 @@ Rectangle {
         }
 
         NumberAnimation {
+            id: circleAnimation
             target: loadCirclePathAngle
             property: "sweepAngle"
             duration: 2000
+            from:30
             to: 360
             running: true
             //easing.type: Easing.InOutQuad
@@ -55,7 +57,8 @@ Rectangle {
                      myShapePath.strokeColor = "#FF0000";
                     text1.color = "#FF0000";
                     text1.text = "Ошибка соединения с Moodle";
-                    appEngine.reconnecting();
+                    circleAnimation.running = true;
+                    //appEngine.reconnecting();
                 }
 
             }
